@@ -1,0 +1,145 @@
+using System.Drawing;
+using System.Windows.Forms;
+using System.IO;
+using Microsoft.VisualBasic;
+
+namespace Cosmetica1
+{
+    public partial class CosmeticCard : UserControl
+    {
+        // Элементы карточки
+        private PictureBox pictureBox;
+        private Label lblTitle;
+        private Label lblDescription;
+        private Label lblPrice;
+        private Label lblOldPrice;
+        private Label lblDiscount;
+        private Label lblStock;
+
+        public CosmeticCard()
+        {
+            InitializeComponent();
+            CreateCard();
+        }
+
+        private void CreateCard()
+        {
+            // Размер карточки
+            this.Size = new Size(200, 300);
+            this.BorderStyle = BorderStyle.FixedSingle;
+            this.BackColor = Color.White;
+            this.Margin = new Padding(10);
+
+            // Фото товара
+            pictureBox = new PictureBox
+            {
+                Location = new Point(10, 10),
+                Size = new Size(180, 120),
+                SizeMode = PictureBoxSizeMode.Zoom
+            };
+
+            // Название
+            lblTitle = new Label
+            {
+                Location = new Point(10, 135),
+                Size = new Size(180, 25),
+                Font = new Font("Times New Roman", 10, FontStyle.Bold),
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+
+            // Описание
+            lblDescription = new Label
+            {
+                Location = new Point(10, 160),
+                Size = new Size(180, 40),
+                Font = new Font("Times New Roman", 8),
+                TextAlign = ContentAlignment.TopCenter
+            };
+
+            // Цена со скидкой
+            lblPrice = new Label
+            {
+                Location = new Point(10, 210),
+                Size = new Size(80, 20),
+                Font = new Font("Times New Roman", 9, FontStyle.Bold),
+                ForeColor = Color.Green,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+
+            // Старая цена
+            lblOldPrice = new Label
+            {
+                Location = new Point(90, 210),
+                Size = new Size(50, 20),
+                Font = new Font("Times New Roman", 8, FontStyle.Strikeout),
+                ForeColor = Color.Red,
+                Visible = false
+            };
+
+            // Скидка
+            lblDiscount = new Label
+            {
+                Location = new Point(140, 210),
+                Size = new Size(50, 20),
+                Font = new Font("Times New Roman", 8, FontStyle.Bold),
+                ForeColor = Color.Orange,
+                TextAlign = ContentAlignment.MiddleRight
+            };
+
+            // Остаток
+            lblStock = new Label
+            {
+                Location = new Point(10, 235),
+                Size = new Size(180, 20),
+                Font = new Font("Times New Roman", 8),
+                ForeColor = Color.Gray,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+
+            // Добавляем всё на карточку
+            this.Controls.Add(pictureBox);
+            this.Controls.Add(lblTitle);
+            this.Controls.Add(lblDescription);
+            this.Controls.Add(lblPrice);
+            this.Controls.Add(lblOldPrice);
+            this.Controls.Add(lblDiscount);
+            this.Controls.Add(lblStock);
+        }
+
+        public void FillData(string title, string description, decimal price, int discount, int stock, string photoPath)
+        {
+            lblTitle.Text = title;
+            lblDescription.Text = description;
+            lblStock.Text = $"В наличии: {stock} шт.";
+
+            if (discount > 0)
+            {
+                decimal newPrice = price * (1 - (decimal)discount / 100);
+                lblPrice.Text = $"{newPrice:F2} руб.";
+                lblOldPrice.Text = $"{price:F2} руб.";
+                lblOldPrice.Visible = true;
+                lblDiscount.Text = $"-{discount}%";
+            }
+            else
+            {
+                lblPrice.Text = $"{price:F2} руб.";
+                lblOldPrice.Visible = false;
+                lblDiscount.Text = "";
+            }
+
+            // Загрузка фото
+            try
+            {
+                if (!string.IsNullOrEmpty(photoPath))
+                {
+                    string fullPath = Path.Combine(Application.StartupPath, photoPath);
+                    if (File.Exists(fullPath))
+                    {
+                        pictureBox.Image = Image.FromFile(fullPath);
+                    }
+                }
+            }
+            catch { }
+        }
+    }
+}
